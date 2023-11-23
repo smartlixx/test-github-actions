@@ -36,9 +36,9 @@ jobs:
        # include:
        #   - os: ubuntu-latest
        #     toolchain: {compiler: gcc, version: 12}
-       # exclude:
-       #   - os: macos-latest
-       #     toolchain: {compiler: intel, version: '2023.2'}
+        exclude:
+          - os: ubuntu-20.04
+            toolchain: {compiler: gcc, version: 12}
 
     steps:
      - uses: actions/checkout@v4
@@ -50,4 +50,10 @@ jobs:
        with:
           compiler: ${{ matrix.toolchain.compiler }}
           version: ${{ matrix.toolchain.version }} 
-     - run: which mpif90
+     - name: Install netcdf-fortran library
+       shell: bash -l {0}   
+       run: sudo apt update && sudo apt install -y netcdf-bin libnetcdf-dev libnetcdff-dev
+     - name: Test mpi
+       run: mpif90 -v
+     - name: Test netcdf
+       run: nc-config --all
