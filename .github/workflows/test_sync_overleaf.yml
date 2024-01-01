@@ -1,0 +1,33 @@
+name: Sync overleaf CoLM-doc
+on:
+  workflow_dispatch:
+
+jobs:
+  download-overleaf-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: de-vri-es/setup-git-credentials@v2
+        with:
+          credentials: ${{ secrets.OVERLEAF_CREDENTIALS }} 
+      - run: |
+          git clone https://git@git.overleaf.com/64c33f37dd3bef5e4913251e overleaf
+          ls -lh
+      - uses: actions/checkout@v4
+        with:
+          repository: smartlixx/CoLM-doc
+          token: ${{ secrets.PUSH_TOKEN_COLM_DOC }}
+          path: 'repo'
+      - run: |
+          pwd
+          export d=`date "+%Y-%m-%d"`
+          echo $d
+          #echo ${{ github.workspace }}
+          ls -lha repo/
+          ls -lha overleaf/
+          cd repo/
+          cp -r ../overleaf/* ./
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          if [[ $(git diff HEAD --stat) == '' ]]; then (echo 'Working tree is clean') 
+          else (git commit -m "Sync with overleaf $d"  && git push) fi
