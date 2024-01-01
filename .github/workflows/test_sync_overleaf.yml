@@ -1,15 +1,18 @@
 name: Sync overleaf CoLM-doc
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1,4'
 
 jobs:
-  download-overleaf-doc:
+  Sync-overleaf-doc:
     runs-on: ubuntu-latest
     steps:
       - uses: de-vri-es/setup-git-credentials@v2
         with:
           credentials: ${{ secrets.OVERLEAF_CREDENTIALS }} 
-      - run: |
+      - name: Clone overleaf version
+        run: |
           git clone https://git@git.overleaf.com/64c33f37dd3bef5e4913251e overleaf
           ls -lh
       - uses: actions/checkout@v4
@@ -17,7 +20,8 @@ jobs:
           repository: smartlixx/CoLM-doc
           token: ${{ secrets.PUSH_TOKEN_COLM_DOC }}
           path: 'repo'
-      - run: |
+      - name: Commit Overleaf version to Github repository 
+        run: |
           pwd
           export d=`date "+%Y-%m-%d"`
           echo $d
